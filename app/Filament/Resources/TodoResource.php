@@ -3,15 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TodoResource\Pages;
-use App\Filament\Resources\TodoResource\RelationManagers;
 use App\Models\Todo;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class TodoResource extends Resource
 {
@@ -25,11 +24,11 @@ class TodoResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
+                    ->maxLength(10),
+                Forms\Components\Textarea::make('description')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('userId')
+                Forms\Components\TextInput::make('id_user')
                     ->required()
                     ->numeric(),
             ]);
@@ -42,10 +41,11 @@ class TodoResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('userId')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        $truncatedValue = Str::limit($state, 10);
+                        return new HtmlString("<span title='{$state}'>{$truncatedValue}</span>");
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -59,13 +59,12 @@ class TodoResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                ->iconButton(),
+                Tables\Actions\DeleteAction::make()
+                ->iconButton()
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array
@@ -79,8 +78,8 @@ class TodoResource extends Resource
     {
         return [
             'index' => Pages\ListTodos::route('/'),
-            'create' => Pages\CreateTodo::route('/create'),
-            'edit' => Pages\EditTodo::route('/{record}/edit'),
+            // 'create' => Pages\CreateTodo::route('/create'),
+            // 'edit' => Pages\EditTodo::route('/{record}/edit'),
         ];
     }
 }

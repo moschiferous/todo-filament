@@ -28,10 +28,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->plugin(PanelRoles::make()
-                ->roleToAssign('admin')
-                ->restrictedRoles(['user'])
-            )
             ->colors([
                 'primary' => Color::Amber,
             ])

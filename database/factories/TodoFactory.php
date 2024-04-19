@@ -17,7 +17,9 @@ class TodoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => $this->faker->realTextBetween(minNbChars: 5, maxNbChars: 10),
+            'description' => $this->faker->realTextBetween(minNbChars: 100, maxNbChars: 255),
+            'id_user' => 1
         ];
     }
 }
